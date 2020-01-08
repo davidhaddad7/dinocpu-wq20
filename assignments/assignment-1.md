@@ -1,13 +1,15 @@
 ---
 Authors: Jason Lowe-Power, Filipe Eduardo Borges
 Editor: Justin Perona
-Title: DINO CPU Assignment 1
+Title: ECS 154B Lab 1, Winter 2020
 ---
 
-# DINO CPU Assignment 1
+# ECS 154B Lab 1, Winter 2020
 
-Originally from ECS 154B Lab 1, Winter 2019
+**Due by 11:59 PM on January 15, 2020.**
 
+**Turn in via Gradescope**
+[See below for details.](#Submission)
 
 # Table of Contents
 
@@ -24,6 +26,7 @@ Originally from ECS 154B Lab 1, Winter 2019
   * [Testing the rest of the instructions](#testing-the-rest-of-the-instructions)
 * [Part V: Moving on to multiple cycles](#part-v-moving-on-to-multiple-cycles)
   * [Testing](#testing)
+* [Part VI: Feedback](#part-vi-feedback)
 * [Grading](#grading)
 * [Submission](#submission)
   * [Code portion](#code-portion)
@@ -557,6 +560,16 @@ To run just one test, you can use the `-z` trick from above.
 ```
 dinocpu:sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
 ```
+
+# Part VI: Feedback
+
+XXX contains a short feedback form.
+This one of the first times we have used these assignments, so we are soliciting feedback to improve them for future quarters.
+You will submit this together with your completed circuit diagram.
+
+Filling out the feedback is worth 10% of your grade on the assignment.
+There are no wrong answers, so as long as you have completed the form, you will receive the points.
+(Note: The more detailed feedback you give, the better we can improve the assignments.)
 
 
 # Grading
