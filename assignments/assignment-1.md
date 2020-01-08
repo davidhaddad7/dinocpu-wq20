@@ -47,7 +47,7 @@ Through this course, we will be building this CPU from the ground up.
 You will be provided with some template code which contains a set of interfaces between CPU components and some pre-written components.
 You will combine these components together into a working processor!
 
-You can check out the tag `lab1-wq20` to get the template code for this lab.
+You can clone this repo to get the code template `git clone https://github.com/jlpteaching/dinocpu-wq20`.
 
 ## Goals
 
