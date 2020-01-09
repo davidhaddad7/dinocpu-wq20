@@ -197,7 +197,7 @@ class ALUControl extends Module {
 
 **HINT:** Use Chisel's  `when` / `elsewhen` / `otherwise`, or `MuxCase` syntax.
 See [the Chisel getting started guide](../documentation/chisel-notes/getting-started.md) for examples.
-You may also find the [Chisel cheat sheet](https://chisel.eecs.berkeley.edu/2.2.0/chisel-cheatsheet.pdf) helpful.
+You may also find the [Chisel cheat sheet](https://www.chisel-lang.org/doc/chisel-cheatsheet3.pdf) helpful.
 
 ### Testing your ALU control unit
 
