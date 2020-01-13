@@ -563,7 +563,7 @@ dinocpu:sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
 
 # Part VI: Feedback
 
-XXX contains a short feedback form.
+[The worksheet](assignment-1-worksheet.pdf) contains a short feedback form.
 This one of the first times we have used these assignments, so we are soliciting feedback to improve them for future quarters.
 You will submit this together with your completed circuit diagram.
 
@@ -593,7 +593,7 @@ Failure to adhere to the instructions will result in a loss of points.
 
 ## Code portion
 
-You will upload the three files that you changed to Gradescope on the [Lab 1]() assignment.
+You will upload the two files that you changed to Gradescope on the [Lab 1]() assignment.
 
 - `src/main/scala/components/alucontrol.scala`
 - `src/main/scala/single-cycle/cpu.scala`
