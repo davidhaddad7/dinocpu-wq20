@@ -9,7 +9,37 @@ import dinocpu.components.Control
 class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   private val ctl = c
 
+  val tests = List(
+    // Inputs,      aluop, pcreg, bypassalu, pcadd, itype, branch, alusrc, pcfromalu, regwrite, memtoreg, memwrite, memread, jump
+    ( "b0110011".U,     2,     0,         0,     0,     0,      0,      0,         0,        1,        0,        0,       0,    0), // R-type
+    ( "b0010011".U,     2,     0,         0,     0,     1,      0,      1,         0,        1,        0,        0,       0,    0), // I-type
+    ( "b0000011".U,     0,     0,         0,     0,     0,      0,      1,         0,        1,        1,        0,       1,    0), // Load
+    ( "b0100011".U,     0,     0,         0,     0,     0,      0,      1,         0,        0,        0,        1,       0,    0), // Store
+    ( "b1100011".U,     1,     0,         0,     0,     0,      1,      0,         0,        0,        0,        0,       0,    0), // beq
+    ( "b0110111".U,     0,     0,         1,     0,     0,      0,      0,         0,        1,        0,        0,       0,    0), // lui
+    ( "b0010111".U,     0,     0,         0,     1,     0,      0,      1,         0,        1,        0,        0,       0,    0), // auipc
+    ( "b1101111".U,     0,     1,         0,     0,     0,      0,      0,         0,        1,        0,        0,       0,    1), // jal
+    ( "b1100111".U,     0,     1,         0,     0,     0,      0,      1,         1,        1,        0,        0,       0,    0) // jalr
 
+  )
+                      
+  for (t <- tests) {
+    poke(ctl.io.opcode, t._1) 
+    step(1)            
+    expect(ctl.io.branch, t._7)
+    expect(ctl.io.memread, t._13)
+    expect(ctl.io.memwrite, t._12)
+    expect(ctl.io.memtoreg, t._11)
+    expect(ctl.io.aluop, t._2)
+    expect(ctl.io.regwrite, t._10)
+    expect(ctl.io.alusrc, t._8)
+    expect(ctl.io.pcadd,t._5)
+    expect(ctl.io.bypassalu,t._4)
+    expect(ctl.io.pcreg,t._3)
+    expect(ctl.io.itype, t._6)
+    expect(ctl.io.jump,t._14)
+    expect(ctl.io.pcfromalu,t._9)
+  }
 }
 
 /**

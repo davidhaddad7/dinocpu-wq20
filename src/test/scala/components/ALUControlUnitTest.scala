@@ -11,7 +11,7 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
 
   // Copied from Patterson and Waterman Figure 2.3
   val tests = List(
-    // add,   imm,      Funct7,       Func3,    Control Input
+    // aluop,   imm,      Funct7,     Func3,   Control Input
     (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
     (  0.U, false.B, "b1111111".U, "b111".U, "b0010".U, "load/store"),
     (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
@@ -33,7 +33,13 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
     (  2.U, true.B,  "b0000000".U, "b111".U, "b0000".U, "andi"),
     (  2.U, true.B,  "b0000000".U, "b001".U, "b1001".U, "slli"),
     (  2.U, true.B,  "b0000000".U, "b101".U, "b0111".U, "srli"),
-    (  2.U, true.B,  "b0100000".U, "b101".U, "b0100".U, "srai")
+    (  2.U, true.B,  "b0100000".U, "b101".U, "b0100".U, "srai"),
+    (  1.U, false.B,  "b0000000".U, "b000".U, "b1101".U, "beq"),
+    (  1.U, false.B,  "b0000000".U, "b001".U, "b1110".U, "bne"),
+    (  1.U, false.B,  "b0000000".U, "b100".U, "b1000".U, "blt"),
+    (  1.U, false.B,  "b0000000".U, "b101".U, "b1011".U, "bge"),
+    (  1.U, false.B,  "b0000000".U, "b110".U, "b0101".U, "bltu"),
+    (  1.U, false.B,  "b0000000".U, "b111".U, "b1100".U, "bgeu")
   )
 
   for (t <- tests) {

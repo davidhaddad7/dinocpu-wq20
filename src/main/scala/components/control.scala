@@ -14,7 +14,6 @@ import chisel3.util.{BitPat, ListLookup}
  * Output: memread    true if we should read from memory
  * Output: memwrite   true if writing to the data memory
  * Output: memtoreg   true if writing data from memory to the register file
- * Output: pcp4toreg  true if writing the pc + 4 to the register (e.g., for jal/r)
  * Output: aluop      00 for ld/st, 10 for R-type, 01 for branch
  * Output: regwrite   true if writing to the register file
  * Output: alusrc     source for the second ALU input (0 is readdata2 and 1 is immediate)
@@ -22,6 +21,8 @@ import chisel3.util.{BitPat, ListLookup}
  * Output: bypassalu  Bypass the ALU and just use the value from immediate
  * Output: pcreg      Update PC with the register value (e.g., for jalr)
  * Output: itype      True if we're working on an itype instruction
+ * Output: jump       True if we want to update the PC with pc+imm regardless of the ALU result
+ * Output: pcfromalu  Use the pc from the ALU, not pc+4 or pc+imm
  * Output: validinst  True if the instruction we're decoding is valid
  *
  * For more information, see section 4.4 of Patterson and Hennessy.
