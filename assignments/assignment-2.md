@@ -346,6 +346,31 @@ As with the previous parts, first update your control unit to assert the necessa
 For this part, you will have to think about how this instruction uses the ALU.
 You will also need to incorporate the data memory into your data path, starting with this instruction.
 
+## Data memory port I/O
+The data memory port I/O is not as simple as the I/O for other modules.
+It's built to be modular to allow different kinds of memories to be used with your CPU design.
+We are planning to explore this further in Lab 4.
+If you want to see the details, you can find them in the [mem-port-io.scala](https://github.com/jlpteaching/dinocpu-wq20/blob/master/src/main/scala/memory/memory-port-io.scala) file.
+
+The I/O for the data memory port is shown below.
+Don't forget that the instruction and data memory ports look weird to use.
+You have to say `io.dmem`, which seems backwards.
+For this assignment, you can ignore the good and ready signals since memory will respond to the request in the same cycle.
+
+```
+Input:  address, the address of a piece of data in memory.
+Input:  writedata, valid interface for the data to write to the address
+Input:  valid, true when the address (and writedata during a write) specified is valid
+Input:  memread, true if we are reading from memory
+Input:  memwrite, true if we are writing to memory
+Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word
+Input:  sext, true if we should sign extend the result
+
+Output: readdata, the data read and sign extended
+Output: good, true when memory is responding with a piece of data
+Output: ready, true when the memory is ready to accept another request
+```
+
 ## `lw` instruction details
 
 The following table shows how the `lw` instruction is laid out:
