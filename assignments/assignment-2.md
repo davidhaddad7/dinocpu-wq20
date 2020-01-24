@@ -134,7 +134,7 @@ The control unit takes a single input, which is the 7-bit `opcode`.
 From that input, it generates the 9 control signals listed below as output.
 
 ```
-branch:     true if branch or jump and link (jal). update PC with immediate
+branch:     true if branch. update PC with immediate
 memread:    true if we should read from memory
 memwrite:   true if writing to the data memory
 memtoreg:   true if writing data from memory to the register file
