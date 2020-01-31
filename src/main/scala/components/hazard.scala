@@ -8,13 +8,13 @@ import chisel3._
  * The hazard detection unit
  *
  * Input:  rs1, the first source register number
- * Input:  rs2, the first source register number
+ * Input:  rs2, the second source register number
  * Input:  idex_memread, true if the instruction in the ID/EX register is going to read from memory
  * Input:  idex_rd, the register number of the destination register for the instruction in the ID/EX register
  * Input:  exmem_taken, if true, then we are using the nextpc in the EX/MEM register, *not* pc+4.
  *
- * Output: pcwrite, the value to write to the pc. If 0, pc+4, if 1 the next_pc from the memory stage,
- *         if 2, then the last pc value (2 stalls the pipeline)
+ * Output: pcfromtaken, if true, use the pc from MEM
+ * Output: pcstall, if true, stall the pipeline
  * Output: ifid_bubble, if true, we should instet a bubble in the IF/ID stage
  * Output: idex_bubble, if true, we should insert a bubble in the ID/EX stage
  * Output: exmem_bubble, if true, we should insert a bubble in the EX/MEM stage
@@ -31,7 +31,8 @@ class HazardUnit extends Module {
     val idex_rd      = Input(UInt(5.W))
     val exmem_taken  = Input(Bool())
 
-    val pcwrite      = Output(UInt(2.W))
+    val pcfromtaken  = Output(Bool())
+    val pcstall      = Output(Bool())
     val ifid_bubble  = Output(Bool())
     val idex_bubble  = Output(Bool())
     val exmem_bubble = Output(Bool())
@@ -39,7 +40,8 @@ class HazardUnit extends Module {
   })
 
   // default
-  io.pcwrite      := 0.U
+  io.pcfromtaken  := false.B
+  io.pcstall      := false.B
   io.ifid_bubble  := false.B
   io.idex_bubble  := false.B
   io.exmem_bubble := false.B

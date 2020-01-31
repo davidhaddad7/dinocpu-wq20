@@ -138,7 +138,7 @@ Help for the single stepper:
  ?               : print this help
  q               : quit
 
-Single stepper> 
+Single stepper>
 ```
 
 If ran correctly, you should notice an interface guide and be given a command prompt. Let's start running some of the commands and looking at our values.
@@ -226,12 +226,12 @@ registers.io.writereg          10 (0xa)
 registers.io.readreg2          5 (0x5)
 registers.io.writedata         2 (0x2)
 registers.io.wen               1 (0x1)
-Single stepper> dump pcPlusFour   
+Single stepper> dump pcPlusFour
 pcPlusFour.io.result           8 (0x8)
 pcPlusFour.io.inputx           4 (0x4)
 pcPlusFour.io.inputy           4 (0x4)
 ```
-Similar to above, the only changes we expect are the updated value from register 10 and the new result being 2. (As well as the PC incrementing by 4 again). To make things a bit more interesting, let's step by 9 cycles. 
+Similar to above, the only changes we expect are the updated value from register 10 and the new result being 2. (As well as the PC incrementing by 4 again). To make things a bit more interesting, let's step by 9 cycles.
 
 **Cycle 10**
 
@@ -301,3 +301,32 @@ See [CPU Test Case](testing.md#cpu-test-case).
 Disassembly is supported by asserting the debug flag to be true in `src/main/scala/configurations.scala`.
 You can find the disassembler in `src/main/scala/utils/disassembler.scala`.
 
+# Creating a trace
+
+To create a trace, you can drive the `stdin` of the single stepper by redirecting a file and then parsing the output.
+For instance, if you store the following into a file called `tmp`, you can get the first 4 cycles.
+
+```
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+q
+```
+
+Then, you can execute the following code to capture the trace.
+This will redirect the file `tmp` to the `stdin` of the single stepper, drop the first help lines, remove all of the command lines (i.e., `Single stepper > `), and remove all registers that aren't 0.
+
+```
+singularity exec library://jlowepower/default/dinocpu sbt "runMain dinocpu.singlestep naturalsum single-cycle" < tmp | tail -n +39 | sed 's/Single stepper> //g' | grep -v ": 0" > output
+```
