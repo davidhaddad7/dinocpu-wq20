@@ -159,20 +159,20 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // ID STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  val rs1 = if_id.io.in.instruction(19,15)
-  val rs2 = if_id.io.in.instruction(24,20)
+  val rs1 = if_id.io.data.instruction(19,15)
+  val rs2 = if_id.io.data.instruction(24,20)
 
   // Send input from this stage to hazard detection unit
 
   // Send opcode to control
-  control.io.opcode := if_id.io.in.instruction(6,0)
+  control.io.opcode := if_id.io.data.instruction(6,0)
 
   // Send register numbers to the register file
   registers.io.readreg1 := rs1
   registers.io.readreg2 := rs2
 
   // Send the instruction to the immediate generator
-  immGen.io.instruction := if_id.io.in.instruction
+  immGen.io.instruction := if_id.io.data.instruction
 
   // FIll the id_ex register
 
