@@ -242,7 +242,7 @@ Failure to adhere to the instructions will result in a loss of points.
 
 ## Code portion
 
-You will upload the three files that you changed to Gradescope on the [Assignment 3.1]() assignment.
+You will upload the file that you changed to Gradescope on the [Assignment 3.1]() assignment.
 
 - `src/main/scala/pipelined/cpu.scala`
 
