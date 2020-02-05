@@ -170,19 +170,36 @@ We have given you the signals that are needed in the EX stage as an example of h
   }
 ```
 
-You can include `Bundles` in other bundles.
-For instance, in the ID/EX register, you need to pass on the control signals for execute, memory, and writeback.
-You can simply instantiate the control bundles like so:
+You can also create registers for the controls, and in the template we have split these out into other `StageReg`s.
+We have given you the control registers.
+However, each control register simply holds a set of bundles.
+You have to set the correct signals in these bundles.
+
+Note that to access the control signals, you may need an "extra" indirection.
+See the example below:
 
 ```
-  // Everything in the register between ID and EX stages
-  class IDEXBundle extends Bundle {
+class EXControl extends Bundle {
+  val itype     = Bool()
+  val aluop     = UInt(2.W)
+  val alusrc    = Bool()
+  val pcadd     = Bool()
+  val branch    = Bool()
+  val jump      = Bool()
+  val pcfromalu = Bool()
+}
+class IDEXControl extends Bundle {
+  val ex_ctrl  = new EXControl
+  val mem_ctrl = new MControl
+  val wb_ctrl  = new WBControl
+}
+val id_ex_ctrl  = Module(new StageReg(new IDEXControl))
+...
 
-    val excontrol = new EXControl
-    val mcontrol  = new MControl
-    val wbcontrol = new WBControl
-  }
+id_ex_ctrl.io.in.ex_ctrl.aluop     := control.io.aluop
 ```
+
+Specifically in `id_ex_ctrl.io.in.ex_ctrl.aluop` you have to specify `ex_ctrl.aluop` since you are are getting a signal out of the `ex_ctrl` part of the `IDEXControl` bundle.
 
 This pipeline register/bundle isn't complete.
 It's missing *a lot* of important signals, which you'll need to add.
@@ -194,10 +211,27 @@ Throughout the given template code in `src/main/scala/pipelined/cpu.scala`, we h
 We have also already instantiated each of the pipeline registers for you as shown below.
 
 ```
-  val if_id       = Module(new StageReg(new IFIDBundle))
-  val id_ex       = Module(new StageReg(new IDEXBundle))
-  val ex_mem      = Module(new StageReg(new EXMEMBundle))
-  val mem_wb      = Module(new StageReg(new MEMWBBundle))
+val if_id       = Module(new StageReg(new IFIDBundle))
+
+val id_ex       = Module(new StageReg(new IDEXBundle))
+val id_ex_ctrl  = Module(new StageReg(new IDEXControl))
+
+val ex_mem      = Module(new StageReg(new EXMEMBundle))
+val ex_mem_ctrl = Module(new StageReg(new EXMEMControl))
+
+val mem_wb      = Module(new StageReg(new MEMWBBundle))
+val mem_wb_ctrl = Module(new StageReg(new MEMWBControl))
+```
+
+For the `StageReg`, you have to specify whether the inputs are valid via the `valid` signal.
+When this signal is high, this tells the register to write the values on the `in` lines to the register.
+Similarly, there is a `flush` signal that when high will set all of the register values to `0` flushing the register.
+In Part III, when implementing the hazard unit, you will have to wire these signals to the hazard detection unit.
+For Part I, all of the registers (including the control registers) should always be `valid` and not `flush` as shown below.
+
+```
+if_id.io.valid := true.B
+if_id.io.flush := false.B
 ```
 
 For Part I, you **do not** need to use the hazard detection unit or the forwarding unit.
