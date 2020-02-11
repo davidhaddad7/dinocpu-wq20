@@ -413,6 +413,12 @@ See [the Submission section](#Submission) for more information on how to submit 
 **Warning**: read the submission instructions carefully.
 Failure to adhere to the instructions will result in a loss of points.
 
+## Feedback form
+
+The feedback will be on a [Google Form](https://forms.gle/EYxbHi4hsc8ndnqWA) for this assignment.
+You have to log into your UC Davis account to be able to fill in the form.
+**This is 10% of your grade on the assignment!**
+
 ## Code portion
 
 You will upload the three files that you changed to Gradescope on the [Assignment 3.2]() assignment.
@@ -444,7 +450,7 @@ GitHub now allows everybody to create unlimited private repositories for up to t
 
 - [ ] You have commented out or removed any extra debug statements.
 - [ ] You have uploaded three files: `cpu.scala`, `hazard.scala`, and `forwarding.scala`.
-- [ ] You have filled out the [feedback form]().
+- [ ] You have filled out the [feedback form](https://forms.gle/EYxbHi4hsc8ndnqWA).
 
 # Hints
 
