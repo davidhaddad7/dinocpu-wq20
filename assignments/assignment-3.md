@@ -334,7 +334,7 @@ Don't forget about [how to single-step through the pipelined CPU](../documentati
 
 There are five steps to implementing branches and flushing.
 
-1. Add a MUX for PC write
+1. Add MUXes for PC stall and PC from taken
 2. Add code to bubble for ID/EX and EX/MEM
 3. Add code to flush IF/ID
 4. Connect the taken signal to the hazard detection unit
