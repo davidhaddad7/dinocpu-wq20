@@ -83,7 +83,7 @@ When `good` is false, the memory is busy or does not have an outstanding request
 
 `valid` is an input and is asserted when the `address` is valid and you want the memory port to send a request.
 
-You can find more information about the memory interface on the [Modular memory page](documentation/memory.md).
+You can find more information about the memory interface on the [Modular memory page](../documentation/memory.md).
 
 **Special thanks to Jared Barocsi who took the class last year for developing this interface and implementing most of the non-combinational CPU design.**
 
