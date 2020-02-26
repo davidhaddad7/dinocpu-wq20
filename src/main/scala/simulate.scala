@@ -1,6 +1,8 @@
 // Main entry point for simulation
 package dinocpu
 
+import dinocpu.test._
+
 import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
 import java.io.{File, PrintWriter, RandomAccessFile}
@@ -75,8 +77,6 @@ object simulate {
 
   def build(optionsManager: SimulatorOptionsManager, conf: CPUConfig): String = {
     optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
-    val annos = firrtl.Driver.getAnnotations(optionsManager)
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
     chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
     case ChiselExecutionSuccess(Some(_), _, Some(firrtlExecutionResult)) =>
@@ -108,60 +108,34 @@ object simulate {
     // Create the CPU config. This sets the type of CPU and the binary to load
     val conf = new CPUConfig()
 
-    val params = args(1).split(":")
-    val cpuType =
-    if (params.length == 2) {
-      "pipelined-bp"
+    println(s"Running test ${args(0)} with memory latency of ${args(1)} cycles")
+
+    val test = InstTests.nameMap(args(0))
+    val latency = args(1).toInt
+
+    val (cpuType, memType, memPortType) =
+    if (latency == 0) {
+      ("pipelined-non-combin", "combinational", "combinational-port")
     } else {
-      params(0)
+      ("pipelined-non-combin", "non-combinational", "non-combinational-port")
     }
 
-    val predictor =
-    if (params.length == 2) {
-      params(1)
+    val driver = new CPUTesterDriver(cpuType, "", test.binary, test.extraName, memType,
+      memPortType, latency)
+    driver.initRegs(test.initRegs)
+    driver.initMemory(test.initMem)
+
+    val cycles = 3000000
+    println(s"Running for max of ${cycles}")
+    driver.run(cycles)
+    println(s"Finished after ${driver.cycle} cycles")
+
+    if (driver.checkRegs(test.checkRegs) && driver.checkMemory(test.checkMem)) {
+      println("Test passed!")
     } else {
-      "always-not-taken"
+      println("Test failed!")
     }
 
-    conf.cpuType = cpuType
-    conf.branchPredictor = predictor
-    conf.memFile = hexName
-
-    // This compiles the chisel to firrtl
-    val compiledFirrtl = build(optionsManager, conf)
-
-    // Convert the binary to a hex file that can be loaded by treadle
-    // (Do this after compiling the firrtl so the directory is created)
-    val endPC = elfToHex(args(0), hexName)
-
-    // Instantiate the simulator
-    val simulator = TreadleTester(compiledFirrtl, optionsManager)
-
-    // Make sure the system is in the reset state (5 cycles)
-    simulator.reset(5)
-
-    // This is the actual simulation
-    var cycles = 0
-    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 2000000
-    // Simulate until the pc is the "endPC" or until max cycles has been reached
-    println("Running...")
-    while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
-      simulator.step(1)
-      cycles += 1
-      if (cycles % 10000 == 0) {
-        println(s"Simulated $cycles cycles")
-      }
-    }
-    println(s"CYCLES: $cycles")
-    try {
-      val correct = simulator.peek("cpu.bpCorrect")
-      val incorrect = simulator.peek("cpu.bpIncorrect")
-      println(s"BP correct: $correct. incorrect: $incorrect")
-    } catch { case NonFatal(t) => }
-    println(s"Verification: ${simulator.peek("cpu.registers.regs_10")}")
-    if (simulator.peek("cpu.registers.regs_10") != 12345678) {
-      println("VERIFICATION FAILED")
-    }
   }
 }
 

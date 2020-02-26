@@ -46,6 +46,8 @@ val defaultVersions = Map(
 libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) }
 
+libraryDependencies ++= Seq("org.jline" % "jline" % "3.5.1")
+
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
 
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
@@ -92,7 +94,7 @@ lazy val root = (project in file("."))
     libraryDependencies += scalatest % Lab4,
     testOptions in TestAll := Seq(Tests.Filter(allFilter)),
     // CHANGE THE LINE BELOW FOR EACH LAB!!!! Use the matching filter
-    testOptions in Test := Seq(Tests.Filter(lab3Filter)),
+    testOptions in Test := Seq(Tests.Filter(allFilter)),
     testOptions in Grader := Seq(Tests.Filter(graderFilter)),
     testOptions in Lab1 := Seq(Tests.Filter(lab1Filter)),
     testOptions in Lab2 := Seq(Tests.Filter(lab2Filter)),

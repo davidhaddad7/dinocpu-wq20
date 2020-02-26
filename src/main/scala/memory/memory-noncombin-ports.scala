@@ -22,7 +22,20 @@ class OutstandingReq extends Bundle {
  * The I/O for this module is defined in [[IMemPortIO]].
  */
 class INonCombinMemPort extends ICombinMemPort {
+  // Non-combinational memory can technically always accept requests since they are delayed through a pipe.
+  // But we want to be able to signal that the memory is holding a request, so a register is used to store
+  // whether a request passed through this memory port
+  val imemBusy = RegInit(false.B)
+
   io.pipeline.good := io.bus.response.valid
+
+  when (io.pipeline.valid) {
+    imemBusy := true.B
+  } .elsewhen (io.bus.response.valid) {
+    imemBusy := false.B
+  }
+
+  io.pipeline.ready := !imemBusy 
 }
 
 /**
@@ -88,14 +101,24 @@ class DNonCombinMemPort extends BaseDMemPort {
         val offset = outstandingReq.bits.address (1, 0)
         val readdata = Wire (UInt (32.W))
         readdata := io.bus.response.bits.data
-        val data = Wire (UInt (32.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
-        when (outstandingReq.bits.maskmode === 0.U) {
-          data := readdata & ~(0xff.U << (offset * 8.U))
+        when (io.pipeline.maskmode === 0.U) {
+          when(offset === 0.U) {
+            writedata := Cat(readdata(31,8), io.pipeline.writedata(7,0))
+          }.elsewhen(offset === 1.U) {
+            writedata := Cat(readdata(31,16), Cat(io.pipeline.writedata(15,8), readdata(7,0)))
+          }.elsewhen(offset === 2.U) {
+            writedata := Cat(readdata(31,24), Cat(io.pipeline.writedata(23,16),readdata(15,0)))
+          }.otherwise {
+            writedata := Cat(io.pipeline.writedata(31,24), readdata(23,0))
+          }
         } .otherwise {
-          data := readdata & ~(0xffff.U << (offset * 8.U))
+          when (offset === 0.U) {
+            writedata := Cat(readdata(31,16),io.pipeline.writedata(15,0))
+          }.otherwise {
+            writedata := Cat(io.pipeline.writedata(31,16), readdata(15,0))
+          }
         }
-        writedata := data | (outstandingReq.bits.writedata << (offset * 8.U))
       } .otherwise {
         // Write the entire word
         writedata := outstandingReq.bits.writedata

@@ -31,6 +31,7 @@ class HazardUnit extends Module {
     val idex_rd      = Input(UInt(5.W))
     val exmem_taken  = Input(Bool())
 
+    val pcwrite      = Output(UInt(2.W))
     val pcfromtaken  = Output(Bool())
     val pcstall      = Output(Bool())
     val ifid_bubble  = Output(Bool())
@@ -40,6 +41,7 @@ class HazardUnit extends Module {
   })
 
   // default
+  io.pcwrite      := 0.U
   io.pcfromtaken  := false.B
   io.pcstall      := false.B
   io.ifid_bubble  := false.B
@@ -47,5 +49,21 @@ class HazardUnit extends Module {
   io.exmem_bubble := false.B
   io.ifid_flush   := false.B
 
-  // Your code goes here
+  // Load to use hazard.
+  when (io.idex_memread &&
+        (io.idex_rd === io.rs1 || io.idex_rd === io.rs2)) {
+    io.pcfromtaken := false.B
+    io.pcstall     := true.B
+    io.ifid_bubble := true.B
+    io.idex_bubble := true.B
+  }
+
+  // branch flush
+  when (io.exmem_taken) {
+    io.pcfromtaken  := true.B // use the PC from mem stage
+    io.pcstall      := false.B // use the PC from mem stage
+    io.ifid_flush   := true.B
+    io.idex_bubble  := true.B
+    io.exmem_bubble := true.B
+  }
 }

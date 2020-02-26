@@ -16,21 +16,25 @@ class CPUFlatSpec extends FlatSpec with Matchers
 class CPUTesterDriver(cpuType: String,
                       branchPredictor: String,
                       binary: String,
-                      extraName: String = "") {
+                      extraName: String = "",
+                      memType: String,
+                      memPortType: String,
+                      latency: Int = 0) {
 
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
-    // TODO: Revert this either by waiting for the chisel guys to fix the CWD bug, or moving the testing system over to
-    // FIRRTLMain instead of Driver
-    //optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
+    optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
   }
 
   val hexName = s"${optionsManager.targetDirName}/${binary}.hex"
 
   val conf = new CPUConfig()
-  conf.cpuType = cpuType
-  conf.memFile = hexName
+  conf.cpuType     = cpuType
+  conf.memFile     = hexName
+  conf.memType     = memType
+  conf.memPortType = memPortType
+  conf.memLatency  = latency
 
   if (!branchPredictor.isEmpty) {
     conf.branchPredictor = branchPredictor
@@ -93,6 +97,7 @@ class CPUTesterDriver(cpuType: String,
     val modules = conf.cpuType match {
       case "single-cycle" => SingleCycleCPUInfo.getModules()
       case "pipelined" => PipelinedCPUInfo.getModules()
+      case "pipelined-non-combin" => PipelinedNonCombinCPUInfo.getModules()
       case other => {
         println(s"Cannot dump info for CPU type ${other}")
         List()
@@ -110,6 +115,7 @@ class CPUTesterDriver(cpuType: String,
     val modules = conf.cpuType match {
       case "single-cycle" => SingleCycleCPUInfo.getModules()
       case "pipelined" => PipelinedCPUInfo.getModules()
+      case "pipelined-non-combin" => PipelinedNonCombinCPUInfo.getModules()
       case other => {
         println(s"Cannot dump info for CPU type ${other}")
         List()
@@ -223,6 +229,8 @@ class CPUTesterDriver(cpuType: String,
 
   def step(cycles: Int = 0): Unit = {
     val start = cycle
+    simulator.step(1)
+    cycle += 1
     while (simulator.peek("cpu.pc") != endPC && cycle < start + cycles) {
       simulator.step(1)
       cycle += 1
@@ -232,6 +240,7 @@ class CPUTesterDriver(cpuType: String,
 
   def run(cycles: Int): Unit = {
     while (cycle < cycles && simulator.peek("cpu.pc") != endPC) {
+      if (cycle % 10000 == 0) println(s"${cycle} cycles simulated.")
       simulator.step(1)
       cycle += 1
     }
@@ -255,9 +264,12 @@ case class CPUTestCase(
 
 /* Only used in tests/scala/cpu-tests */
 object CPUTesterDriver {
-  def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
+  def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = "",
+                      memType: String = "combinational", memPortType: String = "combinational-port",
+                      latency: Int = 0): Boolean = {
     val cpustr = if (branchPredictor != "") { cpuType+"-bp" } else { cpuType }
-    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName)
+    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName,
+      memType, memPortType, latency)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))

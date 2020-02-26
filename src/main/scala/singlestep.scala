@@ -3,7 +3,11 @@
 package dinocpu
 
 import dinocpu.test._
-
+import org.jline.reader.{LineReaderBuilder,EndOfFileException,UserInterruptException}
+import org.jline.terminal.TerminalBuilder
+import org.jline.builtins.Completers.TreeCompleter
+import org.jline.builtins.Completers.TreeCompleter.node
+import scala.util.control.Breaks._
 
 object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
@@ -127,7 +131,7 @@ object singlestep {
     println(s"Running test ${args(0)} on CPU design ${args(1)}")
 
     val test = InstTests.nameMap(args(0))
-    val params = args(1).split(":")
+    val params = args.slice(1,args.length)
     val cpuType = params(0)
 
     val predictor =
@@ -137,13 +141,63 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
+    val memType =
+    if (params.length == 4) {
+      params(2)
+    } else {
+      "combinational"
+    }
+
+    val memPortType =
+    if (params.length == 4) {
+      params(3)
+    } else {
+      "combinational-port"
+    }
+
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, memType,
+      memPortType)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println(commands)
     var done = false
+
+    val completionNodes: List[TreeCompleter.Node] = List(
+
+    )
+
+    val reader = LineReaderBuilder.builder
+      .terminal(TerminalBuilder.builder.system(true).build)
+      .completer(new TreeCompleter(
+        node("print",
+          node("reg"),
+          node("regs"),
+          node("pc"),
+          node("inst"),
+          node("pipereg"),
+          node("piperegs")),
+        node("dump",
+          node("all"),
+          node("list")),
+        node("step"),
+        node("?"),
+        node("q")))
+      .build
+
     while (!done) {
-      val tokens = scala.io.StdIn.readLine("Single stepper> ").split(" ")
+      var line: String =
+        try {
+          reader.readLine("Single stepper> ")
+        } catch {
+          case _: UserInterruptException =>
+            println("Press Control-D to exit")
+            ""
+
+          case _: EndOfFileException =>
+            break
+            ""
+        }
+      val tokens = line.trim.split(" ")
       if (tokens.length > 0) {
         tokens(0) match {
           case "?" => println(commands)
@@ -159,6 +213,7 @@ object singlestep {
               if (!doDump(tokens, driver)) println(commands)
             }
           }
+          case "" => ""
           case _ => println(commands)
         }
       }

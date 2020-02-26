@@ -29,6 +29,7 @@ class ForwardingUnit extends Module {
     val rs2     = Input(UInt(5.W))
     val exmemrd = Input(UInt(5.W))
     val exmemrw = Input(Bool())
+    val exmembypass = Input(Bool())
     val memwbrd = Input(UInt(5.W))
     val memwbrw = Input(Bool())
 
@@ -36,8 +37,23 @@ class ForwardingUnit extends Module {
     val forwardB = Output(UInt(2.W))
   })
 
-  io.forwardA := 0.U
-  io.forwardB := 0.U
+  when (io.exmembypass & (io.rs1 === io.exmemrd) & (io.exmemrd =/= 0.U) ) {
+    io.forwardA := 3.U
+  } . elsewhen (io.exmemrw & (io.rs1 === io.exmemrd) & (io.exmemrd =/= 0.U) ) {
+    io.forwardA := 1.U
+  } .elsewhen (io.memwbrw & (io.rs1 === io.memwbrd) & (io.memwbrd =/= 0.U) ) {
+    io.forwardA := 2.U
+  } .otherwise {
+    io.forwardA := 0.U
+  }
 
-  // Your code goes here
+  when (io.exmembypass & (io.rs2 === io.exmemrd) & (io.exmemrd =/= 0.U) ) {
+    io.forwardB := 3.U
+  } . elsewhen (io.exmemrw & (io.rs2 === io.exmemrd) & (io.exmemrd =/= 0.U) ) {
+    io.forwardB := 1.U
+  } .elsewhen (io.memwbrw & (io.rs2 === io.memwbrd) & (io.memwbrd =/= 0.U ) ) {
+    io.forwardB := 2.U
+  } .otherwise {
+    io.forwardB := 0.U
+  }
 }
