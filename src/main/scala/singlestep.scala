@@ -131,32 +131,17 @@ object singlestep {
     println(s"Running test ${args(0)} on CPU design ${args(1)}")
 
     val test = InstTests.nameMap(args(0))
-    val params = args.slice(1,args.length)
-    val cpuType = params(0)
+    val latency = args(1).toInt
 
-    val predictor =
-    if (params.length == 2) {
-      params(1)
+    val (cpuType, memType, memPortType) =
+    if (latency == 0) {
+      ("pipelined-non-combin", "combinational", "combinational-port")
     } else {
-      ""
+      ("pipelined-non-combin", "non-combinational", "non-combinational-port")
     }
 
-    val memType =
-    if (params.length == 4) {
-      params(2)
-    } else {
-      "combinational"
-    }
-
-    val memPortType =
-    if (params.length == 4) {
-      params(3)
-    } else {
-      "combinational-port"
-    }
-
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, memType,
-      memPortType)
+    val driver = new CPUTesterDriver(cpuType, "", test.binary, test.extraName, memType,
+      memPortType, latency)    
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println(commands)

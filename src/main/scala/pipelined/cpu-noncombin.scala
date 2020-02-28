@@ -197,7 +197,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   immGen.io.instruction := if_id.io.data.instruction
 
   // Don't need to flush the data in this register
-  id_ex.io.flush := false.B
+  id_ex.io.flush := hazard.io.id_ex_flush
   // FIll the id_ex register
   id_ex.io.in.writereg   := if_id.io.data.instruction(11,7)
   id_ex.io.in.rs1        := rs1
@@ -298,8 +298,6 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   ex_mem.io.valid      := !hazard.io.ex_mem_stall
   ex_mem_ctrl.io.valid := !hazard.io.ex_mem_stall
 
-  // Don't need to flush the data in this register
-  ex_mem.io.flush := false.B
   // Set the EX/MEM register values
   ex_mem.io.in.readdata2  := alu_inputy
   ex_mem.io.in.aluresult  := alu.io.result
@@ -358,8 +356,6 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val memInst = ex_mem_ctrl.io.data.mem_ctrl.memread || ex_mem_ctrl.io.data.mem_ctrl.memwrite
   hazard.io.dmem_good := !memInst || io.dmem.good
 
-  // No need to flush the data of this register
-  mem_wb.io.flush := false.B
   // Wire the MEM/WB register
   mem_wb.io.in.writereg   := ex_mem.io.data.writereg
   mem_wb.io.in.aluresult  := ex_mem.io.data.aluresult
@@ -367,9 +363,12 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   mem_wb.io.in.readdata   := io.dmem.readdata
   mem_wb.io.in.imm        := ex_mem.io.data.imm
 
-  // No need to flush the data of this register
-  mem_wb_ctrl.io.flush       := false.B
+  // Wire the MEM/WB control signals
   mem_wb_ctrl.io.in.wb_ctrl  := ex_mem_ctrl.io.data.wb_ctrl
+
+  // No need to flush the data of this register
+  mem_wb.io.flush            := hazard.io.mem_wb_flush
+  mem_wb_ctrl.io.flush       := hazard.io.mem_wb_flush
 
   /////////////////////////////////////////////////////////////////////////////
   // WB STAGE
