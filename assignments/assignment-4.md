@@ -65,7 +65,7 @@ You can check out the master branch to get the template code for this lab.
 
 # Non-combinational Pipelined CPU design
 
-For this assignment, we have to update the implemntation of the pipelined DINO CPU to be able to handle "non-combinational" memory.
+For this assignment, we have to update the implementation of the pipelined DINO CPU to be able to handle "non-combinational" memory.
 In the previous assignments, memory was a combinational circuit.
 Whenever the address (and valid) lines were asserted, the data was produced on the output *in the same cycle*.
 This is unrealistic.
