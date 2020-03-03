@@ -111,13 +111,16 @@ object simulate {
     println(s"Running test ${args(0)} with memory latency of ${args(1)} cycles")
 
     val test = InstTests.nameMap(args(0))
-    val latency = args(1).toInt
-
-    val (cpuType, memType, memPortType) =
-    if (latency == 0) {
-      ("pipelined-non-combin", "combinational", "combinational-port")
-    } else {
-      ("pipelined-non-combin", "non-combinational", "non-combinational-port")
+    val (cpuType, memType, memPortType, latency) =
+    // Check for latency
+    if (args(1) forall Character.isDigit) {
+      if (args(1).toInt == 0) {
+        ("pipelined-non-combin", "combinational", "combinational-port", 0)
+      } else {
+        ("pipelined-non-combin", "non-combinational", "non-combinational-port", args(1).toInt)
+      }
+    } else { // Original single-step format
+      (args(1), "combinational", "combinational-port", 0)
     }
 
     val driver = new CPUTesterDriver(cpuType, "", test.binary, test.extraName, memType,
