@@ -283,7 +283,7 @@ Now, we will investigate the performance with a variety of "realistic" memory sy
 4. Calculate the "slowdown" for the realistic memory compared to the perfect memory. "Slowdown" is the opposite of speedup. For instance, if an application suffers a 2x slowdown, that means it takes twice as long to execute.
 5. Discuss the sensitivity to memory latency for the applications.
     * a) Which application is *most* sensitive to memory latency? What is it about the algorithm that makes this application the most sensitive?
-    * b) Which application is *least* sensitive to memory latency? What is it about the algorithm that makes this application the most sensitive?
+    * b) Which application is *least* sensitive to memory latency? What is it about the algorithm that makes this application the least sensitive?
 
 ## Power and energy analysis
 
